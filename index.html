@@ -707,7 +707,7 @@ button{-webkit-tap-highlight-color:transparent}
   <div id="mnav"></div>
 </div></div></div>
 <div id="hud">
-  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 18 · 19:00</i></div>
+  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 18 · 19:40</i></div>
   <div><b id="secname">STORAGE 101</b></div>
   <div>← → SECTIONS · T THEME&nbsp;&nbsp;&nbsp;<span class="pgno" id="cnt">01</span> / <span id="tot">10</span></div>
 </div>
@@ -3005,12 +3005,12 @@ function invAskGo(mobile){
   const q=(document.getElementById(mobile?"mInvQ":"invQ")||{}).value||"";
   invSearch(q,mobile);
   const host=document.getElementById(mobile?"mInvFound":"invFound");
-  if(host&&aiKey()&&q.trim().length>2){
+  if(host&&aiOn()&&q.trim().length>2){
     [...host.querySelectorAll("div")].forEach(c=>{if(c.textContent.startsWith("No direct match"))c.remove()});
     const holder=document.createElement("div");host.prepend(holder);
     holder.innerHTML=`<p class="aiThink">⚡ Asking live AI…</p>`;
     invAsk(q,holder,mobile);
-  }else if(host&&!aiKey()&&q.trim().length>2){
+  }else if(host&&!aiOn()&&q.trim().length>2){
     const n=document.createElement("div");
     n.innerHTML=`<div class="aiErr" style="margin-top:6px">Loose phrasing works better with live AI — <a href="#" onclick="aiModal();return false" style="color:var(--org);font-weight:800">connect it ⚡</a></div>`;
     host.appendChild(n);
@@ -3027,7 +3027,7 @@ function invSearch(q,mobile){
       <span class="invDot" style="background:${h[1].color}"></span>
       <div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--ink)">${escT(h[0])}</div>
       <div style="font-size:10px;color:var(--mut)">in <b style="color:var(--org)">${escT(h[1].name)}</b>${h[1].loc?" \u2014 "+escT(h[1].loc):""}</div></div></div>`).join("")
-    :`<div style="font-size:11px;color:var(--faint);margin-top:8px">No direct match yet${aiKey()?` — <a href="#" onclick="invAskGo(${mobile?"true":"false"});return false" style="color:var(--org);font-weight:800">ask live AI ⚡</a>`:""}</div>`;
+    :`<div style="font-size:11px;color:var(--faint);margin-top:8px">No direct match yet${aiOn()?` — <a href="#" onclick="invAskGo(${mobile?"true":"false"});return false" style="color:var(--org);font-weight:800">ask live AI ⚡</a>`:""}</div>`;
 }
 /* ================= AI PROJECT SCAN (on-device) ================= */
 let _tfP=null;
@@ -3104,18 +3104,25 @@ function aiModal(){
 }
 function aiModalClose(){const m=document.getElementById("aiModal");if(m)m.classList.remove("on")}
 const AI_MODELS=["claude-sonnet-4-5","claude-haiku-4-5","claude-3-7-sonnet-latest"];
+const AI_URL="";
+function aiOn(){return !!AI_URL||!!aiKey()}
 async function aiCall(content,sys,maxTok){
   let lastErr=null;
   for(const model of AI_MODELS){
-    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{
-      "content-type":"application/json","x-api-key":aiKey(),"anthropic-version":"2023-06-01",
-      "anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model,max_tokens:maxTok||900,system:sys,messages:[{role:"user",content}]})});
+    let r;
+    if(AI_URL&&!aiKey()){
+      r=await fetch(AI_URL,{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({model,max_tokens:maxTok||900,system:sys,messages:[{role:"user",content}]})});
+    }else if(aiKey()){
+      r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{
+        "content-type":"application/json","x-api-key":aiKey(),"anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model,max_tokens:maxTok||900,system:sys,messages:[{role:"user",content}]})});
+      if(r.status===401||r.status===403){aiModal();throw new Error("that API key was rejected — check it and save again")}
+    }else{throw new Error("NOAI")}
     if(r.ok){const j=await r.json();return (j.content||[]).map(c=>c.text||"").join("")}
-    if(r.status===401||r.status===403){aiModal();throw new Error("that API key was rejected — check it and save again")}
-    if(r.status===429)throw new Error("rate limit hit — give it a few seconds and retry");
-    if(r.status===529||r.status===503){lastErr=new Error("the AI service is busy — try again in a moment");continue}
-    if(r.status===404){lastErr=new Error("model unavailable");continue}
+    if(r.status===429)throw new Error("the AI is busy right now — give it a few seconds and try again");
+    if(r.status===529||r.status===503||r.status===404){lastErr=new Error("the AI service is busy — try again in a moment");continue}
     lastErr=new Error("AI error "+r.status);break;
   }
   throw lastErr||new Error("AI unavailable");
@@ -3154,18 +3161,21 @@ async function aiBuild(content,out){
 async function invContents(file,mobile){
   const out=document.getElementById(mobile?"mInvScanRes":"invScanRes");
   if(!file||!out)return;
-  if(!aiKey()){out.innerHTML=`<p class="aiErr">Connect live AI (the ⚡ chip) and a photo of the open tote logs its contents automatically.</p>`;aiModal();return}
+  if(!aiOn()){out.innerHTML=`<p class="aiErr">${document.body.classList.contains("hd")
+    ?`Connect live AI (the ⚡ chip) and a photo of the open tote logs its contents automatically.`
+    :`Live AI comes online with the next update — for now, add the tote and its items by hand below.`}</p>`;
+    if(document.body.classList.contains("hd"))aiModal();return}
   out.innerHTML=`<p class="aiThink">⚡ Reading what's inside…</p>`;
   try{
     const b64=await imgB64(file);
-    const t=await aiCall([{type:"image",source:{type:"base64",media_type:"image/jpeg",data:b64}},{type:"text",text:'List the distinct physical items visible inside this storage tote. Reply STRICT JSON: {"items":["short name",...]} — max 12.'}],"You identify items in storage-tote photos. JSON only.",500);
+    const t=await aiCall([{type:"image",source:{type:"base64",media_type:"image/jpeg",data:b64}},{type:"text",text:'Look at this photo of an open storage tote. Name the tote from what it holds (2-4 words, e.g. "Ski Gear", "Christmas Decor", "Camping Kit") and list the distinct physical items visible inside. Reply STRICT JSON: {"name":"...","items":["short name",...]} — max 12 items.'}],"You identify and name the contents of storage-tote photos for a home-inventory app. JSON only.",520);
     const j=aiJSON(t); const items=((j&&j.items)||[]).map(x=>String(x).slice(0,40)).slice(0,12);
     if(!items.length){out.innerHTML=`<p class="aiErr">Couldn't make out the contents — try a brighter shot from above.</p>`;return}
-    let t2=invSel?TDB.find(x=>x.id===invSel):null;
-    if(!t2){t2={id:"T"+Date.now().toString(36),name:"Scanned tote",loc:"—",color:"#F96302",sku:"",items:[]};TDB.unshift(t2)}
-    t2.items=[...new Set([...(t2.items||[]),...items])];
+    const nm=(j&&j.name?String(j.name):"").replace(/[^\w\s&'-]/g,"").trim().slice(0,28)||"Scanned tote";
+    const t2={id:"T"+Date.now().toString(36),name:nm,loc:"—",color:"#F96302",sku:"",items:[...new Set(items)],ts:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})};
+    TDB.unshift(t2);
     tdbSave();invSel=t2.id;invRender();invOpen(t2.id,mobile);
-    out.innerHTML=`<div class="aiAns"><span class="pill g">⚡ LIVE AI</span><p>Logged ${items.length} items into <b>${escT(t2.name)}</b>: ${items.map(escT).join(", ")}.</p></div>`;
+    out.innerHTML=`<div class="aiAns"><span class="pill g">⚡ LIVE AI</span><p>Named it <b>${escT(nm)}</b> — ${items.length} items logged: ${items.map(escT).join(", ")}. It's in your tote list — tap it anytime to see what's inside.</p></div>`;
   }catch(e){out.innerHTML=`<p class="aiErr">AI hiccup — ${escT(String(e.message||e))}. Try again, or add items by hand.</p>`}
 }
 async function invAsk(q,host,mobile){
@@ -3201,7 +3211,7 @@ function voiceStart(mobile){
   r.onresult=e=>{
     const t=e.results[0][0].transcript.toLowerCase();
     btn.classList.remove("rec");
-    if(aiKey()){
+    if(aiOn()){
       aiBuild([{type:"text",text:`The shopper said: "${t}". Fill the wizard answers and build the kit.`}],out)
         .catch(()=>{out.innerHTML=`<p class="aiErr">Live AI hiccup — using the quick match instead.</p>`;_voiceLocal(t,out,btn)});
       return;
@@ -3233,7 +3243,7 @@ async function scanPhoto(file,mobile){
   const url=URL.createObjectURL(file);
   out.innerHTML=`<div class="scanDrop scanning" style="min-height:120px;margin-top:10px"><img src="${url}" alt=""></div>`;
   const drop=out.firstElementChild;
-  if(aiKey()){
+  if(aiOn()){
     const aiOut=document.createElement("div");out.appendChild(aiOut);
     try{
       const b64=await imgB64(file);
@@ -3253,7 +3263,11 @@ async function scanPhoto(file,mobile){
     if(hit){pi=hit[0];why=`recognized ${cues[0]}`;how="Experimental suggestion · image classified in your browser"}
     else {const h=heuristicGuess(img);pi=h[0];why=h[1];}
   }catch(e){const h=heuristicGuess(img);pi=h[0];why=h[1];cues=[];}
-  if(!aiKey())setTimeout(()=>{const n=document.createElement("div");n.innerHTML=`<div class="aiErr">That was the quick on-device guess — <a href="#" onclick="aiModal();return false" style="color:var(--org);font-weight:800">connect live AI \u26a1</a> and it reads your actual space.</div>`;out.appendChild(n)},1600);
+  if(!aiOn())setTimeout(()=>{const n=document.createElement("div");
+    n.innerHTML=document.body.classList.contains("hd")
+      ?`<div class="aiErr">Quick on-device guess — <a href="#" onclick="aiModal();return false" style="color:var(--org);font-weight:800">connect live AI \u26a1</a> for a real read of the space.</div>`
+      :`<div class="aiErr">Quick on-device estimate — live AI comes online with the next update.</div>`;
+    out.appendChild(n)},1600);
   const wait=Math.max(0,1400-(performance.now()-t0));
   setTimeout(()=>{
     drop.classList.remove("scanning");
