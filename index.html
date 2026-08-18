@@ -271,8 +271,6 @@ table.spec .dim{color:var(--faint)}
 .vidCard .vthumb{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.38);background:#000}
 .vidCard .vthumb img{width:100%;height:100%;object-fit:cover;display:block}
 .vidCard .vt{padding:10px 4px 0;border:none;background:none}
-.vidCard .vthumb{height:140px;position:relative;background:radial-gradient(90% 80% at 50% 108%,var(--sceneB),transparent 70%),linear-gradient(165deg,var(--sceneA),var(--sceneB));display:flex;align-items:center;justify-content:center}
-.vidCard .vthumb img{max-width:82%;max-height:86%;object-fit:contain;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
 .vidCard .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.92}
 .vidCard .play svg{width:44px;height:44px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
 .vidCard .vv{position:absolute;left:10px;bottom:10px;background:rgba(12,10,8,.72);backdrop-filter:blur(6px);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.14em;border-radius:99px;padding:5px 12px;text-transform:uppercase}
@@ -692,7 +690,7 @@ button{-webkit-tap-highlight-color:transparent}
   <div id="mnav"></div>
 </div></div></div>
 <div id="hud">
-  <div>KREATE + THE HOME DEPOT</div>
+  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 18 · 15:29</i></div>
   <div><b id="secname">STORAGE 101</b></div>
   <div>← → SECTIONS · T THEME&nbsp;&nbsp;&nbsp;<span class="pgno" id="cnt">01</span> / <span id="tot">10</span></div>
 </div>
@@ -1416,13 +1414,7 @@ ${sec("01","Seven layers, one system","Click a layer to explore")}
 ${sec("02","How the system grows","stack → roll → shelve → connect → stack-er")}
 <div class="scene" style="height:400px"><div style="position:absolute;inset:0;padding:10px">${heroScene()}</div></div>
 <div style="max-width:880px;margin:14px auto 0">${playTile("vgrow")}</div>
-<div class="grid" style="grid-template-columns:1.5fr 1fr;margin-top:14px;align-items:stretch;display:none">
-  <div></div>
-  <div class="card accent flat" style="display:flex;flex-direction:column;justify-content:center">
-    <div class="klabel">The official 101 video</div>
-    <div style="font-size:17px;font-weight:900;line-height:1.4;color:var(--ink)">The scene above, in real life — <span style="color:var(--org)">one project growing into a full wall.</span></div>
-    <p style="font-size:12.5px;color:var(--mut);line-height:1.6;margin-top:8px">Every video on this site plays right here in the app — nothing kicks you out except the one-click buy at Home Depot.</p></div>
-</div>
+
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 8px"><span class="newB big">NEW</span><span class="klabel" style="margin:0">New for 2026 — tap anything to see the launch slate</span></div>
 <div class="newStrip">
   ${[[()=>IMG.tt127y,"127-Gal. Wheeled Tote","Winter Storage Event"],[()=>IMG.filetote,"File Organizer Tote","Winter Storage Event"],
@@ -1490,10 +1482,7 @@ ${head("STORAGE 101 · THE BASICS","Seven ideas that explain <span class='o'>eve
   <div style="font-size:13.5px;font-weight:700;line-height:1.55;color:var(--ink)">The one thing people get wrong: modular totes <u>stack</u> — they don't click or lock into one another. The click you hear is the lid snapping shut. Once you know that, every "does it lock?" question answers itself.</div>
 </div>
 <div style="max-width:880px;margin:14px auto 0">${playTile("vstacking")}</div>
-<div class="grid" style="margin-top:14px;align-items:stretch;display:none">
-  <div class="card flat" style="display:flex;flex-direction:column;justify-content:center"><div class="klabel">Watch it instead</div>
-    <p style="font-size:13px;color:var(--body);line-height:1.65">Modular stacking, explained on camera — which sizes share footprints, how the 2-on-1 Mini stack works, and why the system rewards buying pieces that already know each other.</p></div>
-</div>`;
+`;
 
 /* ---- 2 · TOUGH TOTE ---- */
 const ladderHTML=TT.map((t,i)=>`
@@ -1763,10 +1752,7 @@ ${note("Vista Stack is its own clear collection — stack documented combination
 /* ---- 5 · DEFENDER ---- */
 const _vistaVid=`
 <div style="max-width:660px;margin:14px auto 0">${playTile("vvista")}</div>
-<div class="grid" style="margin-top:14px;align-items:stretch;display:none">
-  <div class="card flat" style="display:flex;flex-direction:column;justify-content:center"><div class="klabel">Straight from the product page</div>
-    <p style="font-size:13px;color:var(--body);line-height:1.65">The official Vista Stack video — clear body, clear lid, latching clips and the stack-and-nest story, exactly as customers see it on homedepot.com.</p></div>
-</div>`;
+`;
 
 const tab5=`
 ${head("LAYER 06 · PROTECTION","HDX Defender — <span class='o'>see it and shield it.</span>","The protection-led clear collection. An integrated gasket and heavy-duty latches clamp the lid shut — waterproof and dustproof, IP67-rated per Kreate engineering, for the things a snap lid isn't enough for.")}
@@ -3133,6 +3119,7 @@ function invAskGo(mobile){
   invSearch(q,mobile);
   const host=document.getElementById(mobile?"mInvFound":"invFound");
   if(host&&aiKey()&&q.trim().length>2){
+    [...host.querySelectorAll("div")].forEach(c=>{if(c.textContent.startsWith("No direct match"))c.remove()});
     const holder=document.createElement("div");host.prepend(holder);
     holder.innerHTML=`<p class="aiThink">⚡ Asking live AI…</p>`;
     invAsk(q,holder,mobile);
@@ -3213,7 +3200,7 @@ function bResetAll(){
 }
 function aiKey(){try{return localStorage.getItem("s101_ai")||""}catch(e){return ""}}
 function aiSetKey(v){try{v&&v.trim()?localStorage.setItem("s101_ai",v.trim()):localStorage.removeItem("s101_ai")}catch(e){}}
-function aiBadges(){document.querySelectorAll(".aiChip").forEach(c=>c.classList.toggle("live",!!aiKey()))}
+function aiBadges(){const on=!!aiKey();document.querySelectorAll(".aiChip").forEach(c=>{c.classList.toggle("live",on);c.innerHTML="\u26a1 Live AI \u00b7 "+(on?"ON":"connect")})}
 function aiModal(){
   let m=document.getElementById("aiModal");
   if(!m){m=document.createElement("div");m.id="aiModal";
@@ -3229,14 +3216,22 @@ function aiModal(){
   m.classList.add("on");const i=document.getElementById("aiKeyIn");if(i)i.value=aiKey();
 }
 function aiModalClose(){const m=document.getElementById("aiModal");if(m)m.classList.remove("on")}
+const AI_MODELS=["claude-sonnet-4-5","claude-haiku-4-5","claude-3-7-sonnet-latest"];
 async function aiCall(content,sys,maxTok){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{
-    "content-type":"application/json","x-api-key":aiKey(),"anthropic-version":"2023-06-01",
-    "anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:maxTok||900,system:sys,messages:[{role:"user",content}]})});
-  if(!r.ok)throw new Error("AI "+r.status);
-  const j=await r.json();
-  return (j.content||[]).map(c=>c.text||"").join("");
+  let lastErr=null;
+  for(const model of AI_MODELS){
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{
+      "content-type":"application/json","x-api-key":aiKey(),"anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model,max_tokens:maxTok||900,system:sys,messages:[{role:"user",content}]})});
+    if(r.ok){const j=await r.json();return (j.content||[]).map(c=>c.text||"").join("")}
+    if(r.status===401||r.status===403){aiModal();throw new Error("that API key was rejected — check it and save again")}
+    if(r.status===429)throw new Error("rate limit hit — give it a few seconds and retry");
+    if(r.status===529||r.status===503){lastErr=new Error("the AI service is busy — try again in a moment");continue}
+    if(r.status===404){lastErr=new Error("model unavailable");continue}
+    lastErr=new Error("AI error "+r.status);break;
+  }
+  throw lastErr||new Error("AI unavailable");
 }
 function aiJSON(t){const m=t.match(/\{[\s\S]*\}/);try{return m?JSON.parse(m[0]):null}catch(e){return null}}
 async function imgB64(file,max){
@@ -3371,6 +3366,7 @@ async function scanPhoto(file,mobile){
     if(hit){pi=hit[0];why=`recognized ${cues[0]}`;how="Experimental suggestion · image classified in your browser"}
     else {const h=heuristicGuess(img);pi=h[0];why=h[1];}
   }catch(e){const h=heuristicGuess(img);pi=h[0];why=h[1];cues=[];}
+  if(!aiKey())setTimeout(()=>{const n=document.createElement("div");n.innerHTML=`<div class="aiErr">That was the quick on-device guess — <a href="#" onclick="aiModal();return false" style="color:var(--org);font-weight:800">connect live AI \u26a1</a> and it reads your actual space.</div>`;out.appendChild(n)},1600);
   const wait=Math.max(0,1400-(performance.now()-t0));
   setTimeout(()=>{
     drop.classList.remove("scanning");
