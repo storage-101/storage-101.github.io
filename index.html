@@ -18,6 +18,7 @@
 <meta name="twitter:description" content="One system. Every project. The interactive HDX storage guide.">
 <meta name="twitter:image" content="https://storage-101.github.io/preview.jpg">
 <meta name="theme-color" content="#F96302">
+<meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -1919,7 +1920,7 @@ ${head("INTERACTIVE","Build <span class='o'>your system.</span>","Five questions
 
 /* ---- 9 · WHAT'S NEXT ---- */
 const tab9=`
-${head("NEW FOR 2026 · FIFTEEN LAUNCHES ON THE SLATE","Always know <span class='o'>what's new.</span>","Every new item on the aisle wears the badge — <span class='newB big'>NEW</span> — here's what just landed this summer, what arrives with the Winter Storage Event, and what's still ahead.")}
+${head("NEW FOR 2026 · FIFTEEN LAUNCHES ON THE SLATE","Always know <span class='o'>what's new.</span>","Every new item on the aisle wears the badge — <span class='newB big'>NEW</span> — here's what just landed this summer and what arrives with the Winter Storage Event.")}
 ${sec("01","Just launched — Summer 2026","five launches in nine weeks")}
 <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px">
   ${[[()=>IMG.stkLoad,"4-Tier Tote Stacker","Every tier its own drawer — select 7, 9, 14 and 27-gal. slide in and out. The fastest product-page takeoff ever measured on homedepot.com: 7½× traffic in launch week.",340835869],
@@ -2042,7 +2043,7 @@ ${sec("04","In the press","tap to read the coverage")}
   ${[["The New York Times \u00b7 Wirecutter","Storage bins put through drop-and-abuse testing — see how the category gets reviewed.","https://www.nytimes.com/wirecutter/reviews/best-storage-containers/"],
      ["Guinness World Records","The official record page: largest retail plastic storage container — the Husky 170 Gal. Pro Grip.","https://www.guinnessworldrecords.com/world-records/775239-largest-plastic-storage-container"],
      ["Home Depot Eco Actions","Kreate profiled for circular manufacturing — 150M+ lb of resin recycled a year.","https://ecoactions.homedepot.com/blog/kreate-eco-actions-partner/"],
-     ["Kreate newsroom","Every product launch release — Tote Stacker, Vista Stack & Defender, Mini and Nano totes.","https://www.prnewswire.com/news/kreate/"]].map(p=>`
+     ["PR Newswire","The HDX expansion release — 27-gal. Flip Top Totes, the rolling Tote Taxi and heavy-duty shelving.","https://www.prnewswire.com/news-releases/kreate-expands-hdx-home-and-garage-storage-line-with-27-gallon-flip-top-totes-rolling-tote-taxi-and-heavy-duty-shelving-302665323.html"]].map(p=>`
   <a class="card" href="${p[2]}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;gap:13px;align-items:flex-start">
     <span style="color:var(--org);flex:none;margin-top:2px">${I.chev()}</span>
     <div><b style="font-size:13.5px;color:var(--ink)">${p[0]}</b>
@@ -2589,6 +2590,11 @@ function mCompare(){return `
         if(v.startsWith("part:"))return `<td class="part" style="font-size:11px">${v.slice(5)}</td>`;
         return `<td style="font-size:11.5px">${v}</td>`}).join("")}</tr>`).join("")}</tbody></table>
   </div>
+  <div class="msec"><span class="no">1v1</span><h2>Head-to-head — any two</h2><div class="rule"></div></div>
+  <div style="display:flex;gap:8px">${[0,1].map(i=>`<select class="hthSel" style="flex:1;min-width:0" onchange="MHTH[${i}]=this.value;mHthRender()">${PDB.map(q=>`<option value="${q.k}" ${q.k===MHTH[i]?"selected":""}>${q.n}</option>`).join("")}</select>`).join("")}</div>
+  <div class="mcard" id="mhthOut" style="margin-top:10px;padding:8px 10px;overflow-x:auto">
+  
+  </div>
   <div class="msec"><span class="no">FIT</span><h2>What fits where</h2><div class="rule"></div></div>
   <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">
     ${[["Screws & batteries","Nano · Mini · 6.5 qt"],["Sweaters & linens","Vista 60 qt under-bed"],["Holiday décor","27-gal. Tough Tote"],["Docs & first aid","Defender 6.5 qt / 14 gal"],["Jobsite haul","Husky 27 / 57 gal"],["Bulky & seasonal","57–77 gal · wheeled"]].map(t=>`
@@ -2621,19 +2627,20 @@ function wizRender(){
   host.innerHTML=`
     <div class="wizdots">${BQ.map((_,i)=>`<i class="${i<WSTEP?"on":i===WSTEP?"on":""}"></i>`).join("")}</div>
     <div style="text-align:center;font-size:11px;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-bottom:10px">Step ${WSTEP+1} of 5</div>
-    <div style="font-size:17px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:14px">${WSTEP===1?"How much are we storing?":q.t}</div>
+    <div style="font-size:17px;font-weight:900;color:var(--ink);text-align:center;margin-bottom:14px">${WSTEP===1?((AMTSETS[B.project]||{}).h||"How much are we storing?"):q.t}</div>
     ${WSTEP===1?`
     <div class="amtWrap" style="margin-bottom:10px">
-      <div class="amtBubble" id="wAmtBubble" style="left:36%">A closet's worth</div>
+      <div class="amtBubble" id="wAmtBubble" style="left:${8+((B.amount??1)/3*84)}%">${(window._amtl||AMTL)[B.amount??1]}</div>
       <input type="range" min="0" max="3" step="1" value="1" oninput="wAmt(this.value)">
-      <div class="amtTicks"><span>Few</span><span>Closet</span><span>Garage</span><span>Maxing</span></div>
+      <div class="amtTicks">${((AMTSETS[B.project]||{}).l||AMTL).map(x=>`<span>${x.split("·")[0].trim()}</span>`).join("")}</div>
     </div>
     <button class="wizopt" style="justify-content:center" onclick="wizPick(B.amount??1)"><span class="on2">Looks right — next</span></button>`
     :q.opts.map((o,oi)=>`<button class="wizopt" onclick="wizPick(${oi})">
       <span class="oi">${I[o[0]]()}</span><span><span class="on2">${o[1]}</span><div class="os">${o[2]}</div></span></button>`).join("")}
     ${WSTEP>0?`<div style="text-align:center;margin-top:6px"><button class="wizback" onclick="wizBack()">← Back</button></div>`:""}`;
 }
-function wizPick(oi){B[BKEYS[WSTEP]]=oi;
+function wizPick(oi){const w0=WSTEP;B[BKEYS[WSTEP]]=oi;
+  if(w0===0){resetFrom(0);window._amtl=((AMTSETS[B.project]||{}).l||AMTL);}
   const el=document.getElementById("bo"+WSTEP+"_"+oi); if(el)el.classList.add("pick");
   if(firstOpen()===-1)wizResult(); else wizRender();
   buildKit("bkit"); buildStage("bstageScene");
@@ -2776,7 +2783,7 @@ function mSocial(){return `
       <div><div style="font-size:11.5px;font-weight:800;color:var(--ink)">${h[0]}</div>
       <div style="font-size:10px;color:var(--mut);line-height:1.5;margin-top:2px">${h[1]}</div></div></div>`).join("")}</div>
   <div class="msec"><span class="no">03</span><h2>In the press</h2><div class="rule"></div></div>
-  ${[["Wirecutter \u00b7 NYT","https://www.nytimes.com/wirecutter/reviews/best-storage-containers/"],["Guinness World Records","https://www.guinnessworldrecords.com/world-records/775239-largest-plastic-storage-container"],["Eco Actions \u00b7 Home Depot","https://ecoactions.homedepot.com/blog/kreate-eco-actions-partner/"],["Kreate newsroom","https://www.prnewswire.com/news/kreate/"]].map(p=>`
+  ${[["Wirecutter \u00b7 NYT","https://www.nytimes.com/wirecutter/reviews/best-storage-containers/"],["Guinness World Records","https://www.guinnessworldrecords.com/world-records/775239-largest-plastic-storage-container"],["Eco Actions \u00b7 Home Depot","https://ecoactions.homedepot.com/blog/kreate-eco-actions-partner/"],["PR Newswire","https://www.prnewswire.com/news-releases/kreate-expands-hdx-home-and-garage-storage-line-with-27-gallon-flip-top-totes-rolling-tote-taxi-and-heavy-duty-shelving-302665323.html"]].map(p=>`
   <a class="mrow" href="${p[1]}" target="_blank" rel="noopener" style="text-decoration:none"><div class="rt"><div class="a">${p[0]}</div><div class="b">Read the coverage \u2197</div></div><span class="chev">${I.chev()}</span></a>`).join("")}`}
 function mTotes(){return `
   <div class="eyebrow" style="font-size:11px">My totes \u00b7 inventory</div>
@@ -2804,6 +2811,7 @@ let mcur="home";
 function mGo(k){
   mcur=k; mCloseSheet();
   if(k==="store"){const l=document.getElementById("mplList");if(l&&!l.innerHTML)mplList();if(!document.getElementById("mtipText")?.innerHTML)tipShow(tipI);}
+  if(k==="compare")mHthRender();
   document.querySelectorAll(".mp").forEach(p=>{if(p.id!=="msheet")p.classList.toggle("on",p.id==="mp-"+k)});
   document.querySelectorAll(".mnb").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
   const pg=document.getElementById("mp-"+k);
@@ -2860,6 +2868,12 @@ const HTHROWS=[
  ["Store SKU",p=>HDSKU[p.id]||"—"],
  ["New for 2026",p=>p.new?(p.new==="S"?"Summer '26 launch":"Winter Storage Event"):"—"],
  ["Pairs with",p=>p.pairs&&p.pairs.length?p.pairs.slice(0,3).map(k2=>{const q=PDB.find(x=>x.k===k2);return q?q.n:""}).filter(Boolean).join(" · "):"—"]];
+let MHTH=["tt27","d27"];
+function mHthRender(){
+  const host=document.getElementById("mhthOut"); if(!host)return;
+  const ps=MHTH.map(k=>PDB.find(x=>x.k===k)).filter(Boolean);
+  host.innerHTML=`<table class="cmp" style="font-size:12px;width:100%">${HTHROWS.map(r=>`<tr><td style="font-size:11px;white-space:nowrap">${r[0]}</td>${ps.map(p=>`<td style="font-size:11.5px">${r[1](p)}</td>`).join("")}</tr>`).join("")}</table>`;
+}
 function hthRender(){
   const host=document.getElementById("hthWrap"); if(!host)return;
   const ps=HTH.map(k=>PDB.find(x=>x.k===k));
@@ -3163,7 +3177,7 @@ function voiceStart(mobile){
   r.start();
 }
 function wAmt(v){B.amount=+v;const b=document.getElementById("wAmtBubble");
-  if(b){b.textContent=AMTL[+v];b.style.left=(8+(+v)/3*84)+"%"}}
+  if(b){b.textContent=(window._amtl||AMTL)[+v];b.style.left=(8+(+v)/3*84)+"%"}}
 async function scanPhoto(file,mobile){
   if(!file)return;
   const out=document.getElementById(mobile?"scanResM":"scanRes");
@@ -3429,7 +3443,7 @@ function plPick(k){plSel=k;plRefresh();
         <tr><td>Weight rating</td><td class="y">${p.load}</td></tr>
         ${p.wt?`<tr><td>Empty weight</td><td>${p.wt}</td></tr>`:""}
       </table>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${p.uses.map(u=>`<span class="pill">${u}</span>`).join("")}</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">${p.uses.map(u=>`<span class="pill">${u}</span>`).join("")}${recPill(p)}</div>
     </div>
   </div>
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:14px;gap:12px">
@@ -3455,9 +3469,12 @@ function lidPick(i,btn){document.querySelectorAll("#lidbtns .fitchip").forEach(b
     <div style="font-size:14.5px;color:var(--body);margin-top:5px">${m[0]}</div>
     <div style="font-size:13px;color:var(--mut);margin-top:4px">${m[2]}</div></div></div>`}
 function qaToggle(el){el.parentElement.classList.toggle("on")}
-const HDR={tt27:[4.8,22034],tt77:[4.8,23317],taxi:[4.7,468],stk:[4.2,61],v68:[4.7,66],d27:[4.7,105],h170:[4.7,783],flip:[3.8,252]};
+const HDR={tt27:[4.8,22034],tt77:[4.8,23317],taxi:[4.7,468],stk:[4.2,61],v68:[4.7,66],d27:[4.7,105],h170:[4.7,783],flip:[3.8,252],
+tt14:[4.8,22298],tt17:[4.8,21944],tt7:[4.8,21799],tt40:[4.8,23518],tt57:[4.8,21802],shelf24:[4.3,205],v136:[4.7,66],v32:[4.7,66],d14:[4.7,105],h27:[4.6,831],nano:[4.0,3]};
+const isRec=p=>!(p.f==="vista"||p.f==="def"||/Clear/i.test(p.n));
+const recPill=p=>isRec(p)?`<span class="pill g">Black base — 100% recyclable</span>`:`<span class="pill">Clear body — steer eco buyers to black bases</span>`;
 const HDSKU={327528802:"207585",328026906:"1010579937",328026911:"1010579945",328027038:"1010579940",328027039:"1010579938",328027044:"1010579944",328027045:"1010579939",328027053:"1005698544",328027056:"1010579934",328027059:"1010579935",328027062:"1010579936",328027067:"1010579942",330532572:"1011708603",330532573:"1011708602",332895815:"1012893858",332895816:"1012893940",332967898:"1012925020",332967899:"1012925022",333239702:"1013131957",336568836:"1014263963",336630042:"1014305402",336695036:"1014309822",337838863:"1014631351",337838864:"1014631349",337838871:"1014631352",337845416:"1014614565",337845417:"1014614561",338202026:"1014646246",338202027:"1014646705",338781697:"1014790654",338861438:"1014853120",338861439:"1014853118",338861444:"1014853117",338861455:"1014853119",339746575:"1015029229",340835869:"1015248218",340932694:"1015253099"};
-function starRow(k){const r=HDR[k];if(!r)return"";const n=Math.round(r[0]);return `<span class="starRow" title="Home Depot customer rating">${"★".repeat(n)}${"☆".repeat(5-n)} ${r[0]} <i>(${r[1].toLocaleString()} Home Depot reviews)</i></span>`}
+function starRow(k){const r=HDR[k];if(!r)return"";const n=Math.round(r[0]);return `<span class="starRow" title="Home Depot customer rating">${"★".repeat(n)}${"☆".repeat(5-n)} ${r[0]} <i>(${r[1].toLocaleString()} Home Depot reviews · Aug '26)</i></span>`}
 const SIZEQ=[
  ["Holiday décor",["v68","tt27","crate17"],"Clear Vista Stack means they find the garland in January without opening a box; the 27-gal. is the workhorse; crates with dividers protect ornaments."],
  ["Seasonal clothes",["tt14","tt27","v15"],"The low-profile 14-gal. slides under beds, the 27 takes coats and bedding, and the Vista 15-qt. keeps accessories where they can see them."],
