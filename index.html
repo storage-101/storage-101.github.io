@@ -389,6 +389,14 @@ a.swSlide .vv{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;
 .flCard .fim img{max-width:100%;max-height:64px;object-fit:contain}
 .flCard b{display:block;font-size:10.5px;line-height:1.3;color:var(--ink)}
 .flCard i{font-style:normal;font-size:9px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+.flFam{margin-top:20px}
+.flFamHead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.flFamHead b{font-size:14px;font-weight:900;color:var(--ink);letter-spacing:.04em;text-transform:uppercase}
+.flFamHead span{font-size:11px;color:var(--mut)}
+.flFamHead .cnt{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.1em;color:var(--org);border:1px solid var(--line2);border-radius:99px;padding:3px 9px;flex:none}
+.flGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.flGrid .flCard{flex:none;width:auto}
+@media(max-width:760px){.flGrid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:8px}}
 .pgSec{margin-top:16px}
 .compRow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
 .compChip{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line2);border-radius:9px;padding:7px 11px;font-size:11.5px;font-weight:700;color:var(--body)}
@@ -725,7 +733,7 @@ button{-webkit-tap-highlight-color:transparent}
   <div id="mnav"></div>
 </div></div></div>
 <div id="hud">
-  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 22 · 05:19</i></div>
+  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 22 · 16:26</i></div>
   <div><b id="secname">STORAGE 101</b></div>
   <div>← → SECTIONS · T THEME&nbsp;&nbsp;&nbsp;<span class="pgno" id="cnt">01</span> / <span id="tot">10</span></div>
 </div>
@@ -1294,7 +1302,7 @@ ${sec("01","Seven layers, one system","Click a layer to explore")}
 ${sec("02","How the system grows","stack → roll → shelve → connect → stack-er")}
 <div class="scene" style="height:400px"><div style="position:absolute;inset:0;padding:10px">${heroScene()}</div></div>
 <div style="max-width:880px;margin:14px auto 0">${playTile("vgrow")}</div>
-${sec("THE FULL LINE","Every product \u2014 <span class='o'>tap any of them.</span>","full specs \u00b7 fits \u00b7 media \u00b7 the system it completes")}
+${sec("THE FULL LINE","Every product \u2014 <span class='o'>tap any of them.</span>","organized by family \u00b7 tap any product for its full page")}
 <div id="fullLineHost"></div>
 
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 8px"><span class="newB big">NEW</span><span class="klabel" style="margin:0">New for 2026 — tap anything to see the launch slate</span></div>
@@ -2660,7 +2668,15 @@ const TTK=["nano","tt25","tt65","tt7","tt9","tt14","tt17","tt27","tt40","tt57","
 const FITTAXI=["tt7","tt9","tt14","tt17","tt27"], FITSTK=["tt27","tt14","tt9","tt7"];
 const LIDSHARE={tt14:"tt27",tt27:"tt14",tt7:"tt9",tt9:"tt7"};
 const MODSET=["tt25","tt65","tt7","tt9","tt14","tt27"];
-const FULLLINE=["tt27","tt14","tt17","tt40","tt57","tt77","tt127","tt9","tt7","tt65","tt25","nano","taxi","stk","mstk3","flip","shelf18","shelf20","shelf24","v32","v60","v68","v136","d14","d27","d65","h19","h27","h57","h170","filetote","crate4","crate17","nanoorg","org6","org12"];
+const FAMGROUPS=[
+["HDX Tough Tote","one ladder — palm-size to wheeled max",["nano","tt25","tt65","tt7","tt9","tt14","tt17","tt27","tt40","tt57","tt77","tt127"]],
+["Move & Access","roll it · slide it · every tier a drawer",["taxi","stk","mstk3"]],
+["Flip Top","the lid stays attached",["flip","tt12flip"]],
+["Shelving","built for the 27-gal.",["shelf18","shelf20","shelf24"]],
+["Vista Stack","see what's inside",["v15","v32","v60","v68","v136"]],
+["Defender","gasket-sealed protection",["d14","d27","d65"]],
+["Husky Pro Grip","the heavy-duty beasts",["h19","h27","h57","h170"]],
+["Specialty & New","file, crate & organize",["filetote","crate4","crate17","nanoorg","org6","org12"]]];
 const CWLIST=[["cwred","Red"],["cworange","Orange"],["cwarmy","Army Green"],["cwcadet","Cadet Gray"],["cwmoonlit","Moonlit Blue"],["cwatoll","Blue Atoll"],["cwversatile","Versatile Green"],["cworchid","Orchid Pink"]];
 function pName(k){const p=PDB.find(x=>x.k===k);return p?p.n:k}
 function compatFor(p){
@@ -2736,11 +2752,16 @@ function openProd(k){
 }
 function closeProd(){const ov=document.getElementById("pOver");if(ov){ov.classList.remove("on");vidHush()}}
 function fullLineHTML(){
-  return `<div class="fullLine">${FULLLINE.map(k=>{const p=PDB.find(x=>x.k===k);if(!p)return"";
+  const card=k=>{const p=PDB.find(x=>x.k===k);if(!p)return"";
     const im=(MEDIA[k]&&MEDIA[k][0])?MEDIA[k][0]():(p.img?p.img():null);
     return `<div class="flCard" onclick="openProd('${k}')">
       <div class="fim">${im?`<img src="${im}" alt="" loading="lazy">`:`<svg viewBox="0 0 120 76">${tote(14,12,(p.svg&&p.svg.w)||92,(p.svg&&p.svg.h)||52,p.svg||{size:""})}</svg>`}</div>
-      <b>${p.n.replace(" Tough Tote","").replace("HDX ","")}</b><i>tap for specs</i></div>`}).join("")}</div>`;
+      <b>${p.n.replace(" Tough Tote","").replace("HDX ","")}</b><i>tap for specs</i></div>`};
+  return FAMGROUPS.map(g=>{
+    const cards=g[2].map(card).filter(Boolean);
+    return `<div class="flFam">
+      <div class="flFamHead"><b>${g[0]}</b><span>${g[1]}</span><span class="cnt">${cards.length} PRODUCTS</span></div>
+      <div class="flGrid">${cards.join("")}</div></div>`}).join("");
 }
 function mOpenPDB(k){openProd(k)}
 function mFit(k,btn){document.querySelectorAll("#mp-store .hsnap .fitchip").forEach(b=>{if(b.parentElement===btn.parentElement)b.classList.toggle("on",b===btn)});
