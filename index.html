@@ -376,6 +376,24 @@ a.swSlide .vv{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;
 
 /* ladder */
 .ladWrap{display:flex;align-items:flex-end;gap:8px;padding:8px 2px 0}
+#pOver{position:fixed;inset:0;z-index:340;display:none;background:rgba(8,8,10,.62);backdrop-filter:blur(5px)}
+#pOver.on{display:flex;align-items:stretch;justify-content:flex-end}
+#pOver .pPanel{width:min(760px,94vw);height:100%;overflow-y:auto;background:var(--bg,#101114);border-left:1px solid var(--line2);box-shadow:-30px 0 80px rgba(0,0,0,.5);padding:22px 26px 40px;animation:pSlide .32s cubic-bezier(.3,.8,.3,1)}
+@keyframes pSlide{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+#pOver .pClose{position:sticky;top:0;float:right;margin:-6px -8px 0 12px;width:34px;height:34px;border-radius:99px;background:var(--card2);border:1px solid var(--line2);color:var(--ink);font-size:15px;cursor:pointer;z-index:2}
+.fullLine{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:10px 2px 16px;scrollbar-width:none}
+.fullLine::-webkit-scrollbar{display:none}
+.flCard{flex:0 0 118px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 9px;cursor:pointer;text-align:center;transition:border-color .18s,transform .18s}
+.flCard:hover{border-color:var(--org);transform:translateY(-2px)}
+.flCard .fim{height:64px;display:flex;align-items:center;justify-content:center;margin-bottom:7px}
+.flCard .fim img{max-width:100%;max-height:64px;object-fit:contain}
+.flCard b{display:block;font-size:10.5px;line-height:1.3;color:var(--ink)}
+.flCard i{font-style:normal;font-size:9px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+.pgSec{margin-top:16px}
+.compRow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.compChip{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line2);border-radius:9px;padding:7px 11px;font-size:11.5px;font-weight:700;color:var(--body)}
+.compChip.yes{border-color:rgba(60,180,110,.5)}
+.cwDot{width:26px;height:26px;border-radius:99px;border:2px solid var(--line2);cursor:default}
 .lad{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;min-width:0;
   padding:10px 2px 12px;border-radius:8px;border:1px solid transparent;transition:border-color .25s,background .25s}
 .lad:hover{background:var(--orgSoft)}
@@ -707,7 +725,7 @@ button{-webkit-tap-highlight-color:transparent}
   <div id="mnav"></div>
 </div></div></div>
 <div id="hud">
-  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 18 · 20:16</i></div>
+  <div>KREATE + THE HOME DEPOT <i style="font-style:normal;opacity:.55">· Aug 22 · 05:19</i></div>
   <div><b id="secname">STORAGE 101</b></div>
   <div>← → SECTIONS · T THEME&nbsp;&nbsp;&nbsp;<span class="pgno" id="cnt">01</span> / <span id="tot">10</span></div>
 </div>
@@ -1276,6 +1294,8 @@ ${sec("01","Seven layers, one system","Click a layer to explore")}
 ${sec("02","How the system grows","stack → roll → shelve → connect → stack-er")}
 <div class="scene" style="height:400px"><div style="position:absolute;inset:0;padding:10px">${heroScene()}</div></div>
 <div style="max-width:880px;margin:14px auto 0">${playTile("vgrow")}</div>
+${sec("THE FULL LINE","Every product \u2014 <span class='o'>tap any of them.</span>","full specs \u00b7 fits \u00b7 media \u00b7 the system it completes")}
+<div id="fullLineHost"></div>
 
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 8px"><span class="newB big">NEW</span><span class="klabel" style="margin:0">New for 2026 — tap anything to see the launch slate</span></div>
 <div class="newStrip">
@@ -1347,6 +1367,11 @@ ${head("STORAGE 101 · THE BASICS","Seven ideas that explain <span class='o'>eve
 `;
 
 /* ---- 2 · TOUGH TOTE ---- */
+const _pickWrap=()=>{const _p=window.pickTT;window.pickTT=function(i){_p(i);
+  const k=TTK[i],host=document.getElementById("ttDetail");
+  if(host&&k&&PDB.find(x=>x.k===k)){const b=document.createElement("button");b.className="hdBtn";
+    b.style.cssText="margin-top:12px";b.textContent="Full product page \u2192";b.onclick=()=>openProd(k);host.appendChild(b)}}};
+addEventListener("DOMContentLoaded",_pickWrap);
 const ladderHTML=TT.map((t,i)=>`
   <div class="lad ${i===7?"on":""}" id="lad${i}" onclick="pickTT(${i})" data-tip="<b>${t.n}</b> — ${t.role}${t.load?` · ${t.load}-lb weight capacity`:""}">
     <div class="lbox"><svg viewBox="0 0 ${t.w+16} ${t.h+36}" style="height:${Math.round((t.h+36)*.58)}px"><g class="grow" style="transition-delay:${i*60}ms">${tote(8,18,t.w,t.h,{size:"",clear:t.clear,wheels:t.wheels})}</g></svg></div>
@@ -2176,7 +2201,7 @@ function kitHTML(){
     if(p){priced++;total+=p*it.q}
     return `<div class="kitrow" style="animation-delay:${i*70}ms;align-items:center">
       <div class="kthumb">${c.img?`<img src="${c.img()}" alt="">`:`<span style="color:var(--org)">${I.box().replace('<svg','<svg style="width:20px;height:20px"')}</span>`}</div>
-      <div style="flex:1;min-width:0"><div class="kt">${c.n}${c.new?` <span class="newB">NEW</span>`:""}</div><div class="ks">${it.why||""}${p?` · <b style="color:var(--org)">$${p.toFixed(2)}</b>`:""}</div></div>
+      <div style="flex:1;min-width:0;cursor:pointer" onclick="openProd&&openProd('${it.k}')"><div class="kt">${c.n}${c.new?` <span class="newB">NEW</span>`:""}</div><div class="ks">${it.why||""}${p?` · <b style="color:var(--org)">$${p.toFixed(2)}</b>`:""}</div></div>
       <span class="qtyChip">×${it.q}</span>
       <a class="hdBtn ghost" href="${hdURL(c.id)}" target="_blank" rel="noopener">HD ↗</a></div>`}).join("");
   const addRows=adds.map((r,i)=>`<div class="kitrow" style="animation-delay:${(items.length+i)*70}ms"><span class="ki">${I[r[0]]()}</span><div><div class="kt">${r[1]}</div><div class="ks">${r[2]}</div></div></div>`).join("");
@@ -2631,28 +2656,93 @@ function mplList(){
       <div class="rt"><div class="a">${p.n}</div><div class="b">${PFAM[p.f]} · ${p.load}</div></div>
       <span class="chev">${I.chev()}</span></div>`).join("")||`<div style="font-size:13px;color:var(--faint);padding:14px;text-align:center">No match.</div>`;
 }
-function mOpenPDB(k){
-  const p=PDB.find(x=>x.k===k); if(!p)return;
-  const sh=document.getElementById("msheet");
-  document.getElementById("msheetTitle").textContent=p.n;
-  const body=document.getElementById("msheetBody");
-  body.innerHTML=`
-    <div style="margin-bottom:12px">${pdbSlides(p,200,"mm_"+p.k)}</div>
-    ${p.new?`<div style="margin:-4px 0 10px"><span class="newB big">${p.new==="S"?"NEW — SUMMER '26 LAUNCH":"NEW — WINTER STORAGE EVENT"}</span></div>`:""}
-    ${starRow(p.k)?`<div style="margin:0 0 9px">${starRow(p.k)}</div>`:""}
-    <table class="spec"><tr><td>Dimensions</td><td>${p.dims}${p.inDims?`<br><span class="dim">${p.inDims}</span>`:""}</td></tr>
-    ${HDSKU[p.id]?`<tr><td>Store SKU</td><td>${HDSKU[p.id]}</td></tr>`:""}
-    <tr><td>Weight rating</td><td class="y">${p.load}</td></tr>${p.wt?`<tr><td>Empty weight</td><td>${p.wt}</td></tr>`:""}</table>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0">${p.uses.map(u=>`<span class="pill" style="font-size:10px">${u}</span>`).join("")}</div>
-    <div class="mcard"><div class="klabel" style="margin-bottom:7px">From the product page</div>
-      <ul class="dash">${p.feats.map(f2=>`<li style="font-size:13px">${f2}</li>`).join("")}</ul></div>
-    <div class="mcard"><div class="klabel" style="margin-bottom:7px">Completes the system — customers pair these</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">${p.pairs.map(pk=>{const pp=PDB.find(x=>x.k===pk);
-        return pp?`<button class="fitchip" style="font-size:10px" onclick="mOpenPDB('${pk}')">${pp.n}</button>`:""}).join("")}</div>
-      ${mnote(`<b style="color:var(--org)">Aisle tip:</b> ${p.tip}`)}</div>
-    <a class="hdBtn" style="width:100%;justify-content:center;padding:12px" href="${hdURL(p.id)}" target="_blank" rel="noopener">Product page at Home Depot ↗</a>`;
-  body.scrollTop=0; sh.classList.add("open");
+const TTK=["nano","tt25","tt65","tt7","tt9","tt14","tt17","tt27","tt40","tt57","tt77","tt127"];
+const FITTAXI=["tt7","tt9","tt14","tt17","tt27"], FITSTK=["tt27","tt14","tt9","tt7"];
+const LIDSHARE={tt14:"tt27",tt27:"tt14",tt7:"tt9",tt9:"tt7"};
+const MODSET=["tt25","tt65","tt7","tt9","tt14","tt27"];
+const FULLLINE=["tt27","tt14","tt17","tt40","tt57","tt77","tt127","tt9","tt7","tt65","tt25","nano","taxi","stk","mstk3","flip","shelf18","shelf20","shelf24","v32","v60","v68","v136","d14","d27","d65","h19","h27","h57","h170","filetote","crate4","crate17","nanoorg","org6","org12"];
+const CWLIST=[["cwred","Red"],["cworange","Orange"],["cwarmy","Army Green"],["cwcadet","Cadet Gray"],["cwmoonlit","Moonlit Blue"],["cwatoll","Blue Atoll"],["cwversatile","Versatile Green"],["cworchid","Orchid Pink"]];
+function pName(k){const p=PDB.find(x=>x.k===k);return p?p.n:k}
+function compatFor(p){
+  const rows=[];
+  if(FITTAXI.includes(p.k))rows.push(["yes","Rides the Tote Taxi"]);
+  if(p.k==="taxi")rows.push(["yes","Fits 7 · 9 · 14 · 17 · 27-gal. totes"]);
+  if(FITSTK.includes(p.k))rows.push(["yes","Slides into the Tote Stacker"]);
+  if(p.k==="stk")rows.push(["yes","Holds 27 · 14 · 9 · 7-gal. totes"]);
+  if(LIDSHARE[p.k])rows.push(["yes","Shares its lid with the "+pName(LIDSHARE[p.k])]);
+  if(MODSET.includes(p.k))rows.push(["yes","Modular set — footprints stack in a grid"]);
+  if(p.f==="tough")rows.push(["yes","Stacks full · nests empty"]);
+  if(p.f==="vista")rows.push(["yes","Stacks & nests with every Vista size"]);
+  if(["tt27","tt14"].includes(p.k))rows.push(["yes","Two per shelf on the 18×36"]);
+  if(p.k==="h57")rows.push(["yes","Rides under most tonneau covers — two per full-size bed"]);
+  return rows;
 }
+function prodPage(p,mobile){
+  const hd=document.body.classList.contains("hd");
+  const fam=(typeof PFAM!=="undefined"&&PFAM[p.f])?PFAM[p.f]:"";
+  const comp=compatFor(p);
+  return `
+    <div style="margin-bottom:12px">${pdbSlides(p,mobile?200:280,(mobile?"mm_":"pv_")+p.k)}</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+      ${fam?`<span class="pill o" style="font-size:10px">${fam}</span>`:""}
+      ${p.new?`<span class="newB big">${p.new==="S"?"NEW — SUMMER '26":"NEW — WINTER STORAGE EVENT"}</span>`:""}
+      <span class="pill" style="font-size:10px">MADE IN USA</span></div>
+    ${starRow(p.k)?`<div style="margin:0 0 10px">${starRow(p.k)}</div>`:""}
+    <table class="spec">
+      <tr><td>${/\u00d7|x /.test(p.dims||"")?"Exterior":"Format"}</td><td>${p.dims}</td></tr>
+      ${p.inDims?`<tr><td>Interior</td><td>${p.inDims}</td></tr>`:""}
+      ${p.load?`<tr><td>Weight rating</td><td class="y">${p.load}</td></tr>`:""}
+      ${p.wt?`<tr><td>Empty weight</td><td>${p.wt}</td></tr>`:""}
+      <tr><td>Material</td><td>Impact-resistant polypropylene resin</td></tr>
+      ${hd&&p.id?`<tr><td>Internet #</td><td>${p.id}</td></tr>`:""}
+      ${hd&&HDSKU[p.id]?`<tr><td>Store SKU</td><td>${HDSKU[p.id]}</td></tr>`:""}
+    </table>
+    ${comp.length?`<div class="pgSec"><div class="klabel">Fits & works with</div>
+      <div class="compRow">${comp.map(c=>`<span class="compChip ${c[0]}">${I.check?I.check():""}${c[1]}</span>`).join("")}</div></div>`:""}
+    ${p.k==="tt27"?`<div class="pgSec"><div class="klabel">Colorways — black & yellow leads, seasonal lids rotate</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">${CWLIST.map(c=>`<img class="cwDot" src="${IMG[c[0]]}" alt="${c[1]}" title="${c[1]}" style="object-fit:cover">`).join("")}</div></div>`:""}
+    <div class="pgSec"><div class="klabel">Made for</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${(p.uses||[]).map(u=>`<span class="pill" style="font-size:10px">${u}</span>`).join("")}</div></div>
+    <div class="pgSec ${mobile?"mcard":"card flat"}" style="${mobile?"":"margin-top:16px"}"><div class="klabel" style="margin-bottom:7px">From the product page</div>
+      <ul class="dash">${(p.feats||[]).map(f2=>`<li style="font-size:13px">${f2}</li>`).join("")}</ul></div>
+    <div class="pgSec ${mobile?"mcard":"card flat"}" style="${mobile?"":"margin-top:12px"}"><div class="klabel" style="margin-bottom:7px">Completes the system</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${(p.pairs||[]).map(pk=>{const pp=PDB.find(x=>x.k===pk);
+        return pp?`<button class="fitchip" style="font-size:10.5px" onclick="openProd('${pk}')">${pp.n}</button>`:""}).join("")}</div>
+      ${hd&&p.tip?`<div class="note" style="margin-top:10px">${I.info?I.info():""}<span><b style="color:var(--org)">Aisle tip:</b> ${p.tip}</span></div>`:""}</div>
+    <a class="hdBtn" style="width:100%;justify-content:center;padding:12px;margin-top:14px" href="${hdURL(p.id)}" target="_blank" rel="noopener">Product page at Home Depot ↗</a>`;
+}
+addEventListener("DOMContentLoaded",()=>{const h=document.getElementById("fullLineHost");if(h)h.innerHTML=fullLineHTML()});
+function openProd(k){
+  const p=PDB.find(x=>x.k===k); if(!p)return;
+  vidHush();
+  if(document.body.classList.contains("mv")){
+    const sh=document.getElementById("msheet");
+    document.getElementById("msheetTitle").textContent=p.n;
+    const body=document.getElementById("msheetBody");
+    body.innerHTML=prodPage(p,true);
+    body.scrollTop=0; sh.classList.add("open");
+    return;
+  }
+  let ov=document.getElementById("pOver");
+  if(!ov){ov=document.createElement("div");ov.id="pOver";
+    ov.innerHTML=`<div class="pPanel"><button class="pClose" onclick="closeProd()">✕</button><div id="pBody"></div></div>`;
+    ov.addEventListener("click",e=>{if(e.target===ov)closeProd()});
+    document.body.appendChild(ov);
+    addEventListener("keydown",e=>{if(e.key==="Escape")closeProd()});}
+  document.getElementById("pBody").innerHTML=
+    `<div class="klabel">Product</div><div style="font-size:26px;font-weight:900;color:var(--ink);letter-spacing:-.01em;margin:2px 0 14px">${p.n}</div>`+prodPage(p,false);
+  ov.classList.add("on");
+  ov.querySelector(".pPanel").scrollTop=0;
+}
+function closeProd(){const ov=document.getElementById("pOver");if(ov){ov.classList.remove("on");vidHush()}}
+function fullLineHTML(){
+  return `<div class="fullLine">${FULLLINE.map(k=>{const p=PDB.find(x=>x.k===k);if(!p)return"";
+    const im=(MEDIA[k]&&MEDIA[k][0])?MEDIA[k][0]():(p.img?p.img():null);
+    return `<div class="flCard" onclick="openProd('${k}')">
+      <div class="fim">${im?`<img src="${im}" alt="" loading="lazy">`:`<svg viewBox="0 0 120 76">${tote(14,12,(p.svg&&p.svg.w)||92,(p.svg&&p.svg.h)||52,p.svg||{size:""})}</svg>`}</div>
+      <b>${p.n.replace(" Tough Tote","").replace("HDX ","")}</b><i>tap for specs</i></div>`}).join("")}</div>`;
+}
+function mOpenPDB(k){openProd(k)}
 function mFit(k,btn){document.querySelectorAll("#mp-store .hsnap .fitchip").forEach(b=>{if(b.parentElement===btn.parentElement)b.classList.toggle("on",b===btn)});
   const p=PDB.find(x=>x.k===k),host=document.getElementById("mFitOut"); if(!p||!host)return;
   host.innerHTML=p.pairs.map(pk=>{const pp=PDB.find(x=>x.k===pk);
@@ -2859,7 +2949,7 @@ const MEDIA={
  tt127:[()=>IMG.tt127y,()=>IMG.tt127r],filetote:[()=>IMG.filetote],crate17:[()=>IMG.cratefam],crate4:[()=>IMG.cratefam],nanoorg:[()=>IMG.nanoorg],nano:[()=>IMG.nano]};
 function pdbSlides(p,h,idp){
   const fns=MEDIA[p.k]||(p.img?[p.img]:[]);
-  const slides=fns.map((f,i)=>({img:f,cap:i===0?("Item #"+p.id):""}));
+  const slides=fns.map((f,i)=>({img:f,cap:(i===0&&document.body.classList.contains("hd"))?("Item #"+p.id):""}));
   if(!slides.length&&p.svg)slides.push({raw:`<svg viewBox="0 0 160 120" style="height:${h-46}px;overflow:visible">${tote(24,40,(p.svg.w||92),(p.svg.h||56),p.svg)}</svg>`});
   const poster=fns[0]||null;
   if(SPINMAP[p.k])slides.push({spin:SPINMAP[p.k]});
@@ -3156,7 +3246,7 @@ async function aiBuild(content,out){
   if(_sc)setTimeout(()=>_sc.scrollIntoView({behavior:"smooth",block:"center"}),300);
   const est=j.estimate;
   out.innerHTML=`<div class="aiAns"><span class="pill g">⚡ LIVE AI</span>${est&&est.volumeCuFt?`<p><b style="color:var(--ink)">~${est.volumeCuFt} cu ft read from your ${typeof content!=="undefined"&&Array.isArray(content)&&content.some(c=>c.type==="image")?"photo":"description"}:</b> ${escT(est.seen||"")}</p>`:""}<p>${escT(j.note||"Here's the setup I'd build.")}</p>${
-    (j.kit&&j.kit.length)?j.kit.map(it=>{const p=PDB.find(x=>x.k===it.k);return p?`<div class="aiKitRow"><b>${it.q||1}×</b> ${p.n}<span>${it.why?escT(it.why):""}</span><a class="hdBtn ghost" style="padding:3px 10px;font-size:10px" href="${hdURL(p.id)}" target="_blank" rel="noopener">HD ↗</a></div>`:""}).join(""):""}</div>`;
+    (j.kit&&j.kit.length)?j.kit.map(it=>{const p=PDB.find(x=>x.k===it.k);return p?`<div class="aiKitRow"><b>${it.q||1}×</b> <a href="#" onclick="openProd('${p.k}');return false" style="color:var(--ink)">${p.n}</a><span>${it.why?escT(it.why):""}</span><a class="hdBtn ghost" style="padding:3px 10px;font-size:10px" href="${hdURL(p.id)}" target="_blank" rel="noopener">HD ↗</a></div>`:""}).join(""):""}</div>`;
 }
 async function invContents(file,mobile){
   const out=document.getElementById(mobile?"mInvScanRes":"invScanRes");
